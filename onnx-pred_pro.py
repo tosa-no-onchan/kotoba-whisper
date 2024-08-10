@@ -151,8 +151,8 @@ if True:
 #print('type(model):',type(model))
 #print('model.config:',model.config)
 
-TEST1=False
-TEST2=True
+TEST1=True
+TEST2=False
 SOUND_ON=False
 
 sample_mp3="/home/nishi/local/tmp/commonvoice/cv-corpus-11.0-2022-09-21/ja/common_voice_ja_32866812.mp3"
@@ -240,6 +240,10 @@ while True:
   else:
     input_my=sample
 
+  #print('type(input_my):',type(input_my))
+  # type(input_my): <class 'torch.Tensor'>
+  #print("input_my.dtype:",input_my.dtype)
+  # input_my.dtype: torch.float32
   #predicted_ids = model.generate(input_my, max_length=448)
   predicted_ids = model.generate(input_my)
 
@@ -248,7 +252,7 @@ while True:
 
   #print('x:shape',x.shape)
   #speech=tokenizer.decode(x[0])
-  speech=tokenizer.decode(predicted_ids[0])
+  speech=tokenizer.decode(predicted_ids[0],True)
   print('speech:',speech)
   cnt+=1
   if cnt >= 1:
