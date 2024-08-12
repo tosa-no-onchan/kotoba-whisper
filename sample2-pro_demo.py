@@ -1,5 +1,5 @@
 """
-sample2-bit8_pro_demo.py
+kotoba-whisper/sample2-pro_demo.py
 
 https://hamaruki.com/introduction-to-kotoba-whisper-a-new-option-for-japanese-speech-recognition/
 
@@ -37,7 +37,7 @@ def main():
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--non_english", action='store_true',
                         help="Don't use the english model.")
-    parser.add_argument("--energy_threshold", default=1500,
+    parser.add_argument("--energy_threshold", default=800,
                         help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=2,
                         help="How real time the recording is in seconds.", type=float)
@@ -86,9 +86,12 @@ def main():
         #audio_model = whisper.load_model(model)
 
     # モデルの設定
-    model_id = "./kotoba-whisper-v1.0-8bit"
+    #model_id = "./kotoba-whisper-v1.0-8bit"
+    model_id = "kotoba-tech/kotoba-whisper-v1.0"
+
+    #torch_dtype=torch.float8_e4m3fn
     #torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-    torch_dtype=torch.float8_e4m3fn
+    torch_dtype = torch.float32
 
     device = "cuda:0" if torch.cuda.is_available() else "cpu"
     model_kwargs = {"attn_implementation": "sdpa"} if torch.cuda.is_available() else {}
@@ -97,14 +100,24 @@ def main():
     #quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 
     PIPE_USE=False
+    USE_8BIT=False
+
 
     # load model
-    model_8bit = AutoModelForSpeechSeq2Seq.from_pretrained(
-        model_id,
-        #quantization_config=quantization_config,
-        low_cpu_mem_usage=True, 
-        use_safetensors=True
-        )
+    if USE_8BIT==True:
+        model_8bit = AutoModelForSpeechSeq2Seq.from_pretrained(
+            model_id,
+            #quantization_config=quantization_config,
+            low_cpu_mem_usage=True, 
+            use_safetensors=True
+            )
+    else:
+        model = AutoModelForSpeechSeq2Seq.from_pretrained(
+            model_id, 
+            torch_dtype=torch_dtype, 
+            low_cpu_mem_usage=True, 
+            use_safetensors=True)
+        model.to(device)
 
     #print(model_8bit)
 
@@ -130,7 +143,7 @@ def main():
     if PIPE_USE==True:
         # モデルのロード
         pipe = AutomaticSpeechRecognitionPipeline(
-            model=model_8bit,
+            model=model,
             feature_extractor=feature_extractor,
             tokenizer=tokenizer,
             torch_dtype=torch_dtype,
@@ -231,14 +244,17 @@ def main():
 
 
                     if isinstance(sample, np.ndarray):
-                        sample_half = sample.astype(np.float16)
-                        #input_my = torch.from_numpy(sample_half).clone()
-                        input_my = torch.from_numpy(sample_half).to(device).clone()
+                        if torch_dtype == torch.float16:
+                            sample_half = sample.astype(np.float16)
+                            input_my = torch.from_numpy(sample_half).to(device).clone()
+                        else:
+                            #input_my = torch.from_numpy(sample).clone()
+                            input_my = torch.from_numpy(sample).to(device).clone()
                     else:
                         input_my=sample
 
                     # 推論の実行
-                    predicted_ids = model_8bit.generate(
+                    predicted_ids = model.generate(
                         input_my,
                         None,
                         **generate_kwargs

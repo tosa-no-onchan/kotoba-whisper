@@ -1,4 +1,7 @@
 """
+
+/home/nishi/Documents/Visualstudio-torch_env/kotoba-whisper/sample2.py
+
 https://hamaruki.com/introduction-to-kotoba-whisper-a-new-option-for-japanese-speech-recognition/
 """
 import torch
@@ -9,7 +12,8 @@ import time
 
 # モデルの設定
 model_id = "kotoba-tech/kotoba-whisper-v1.0"
-torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+#torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+torch_dtype = torch.float32
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
 model_kwargs = {"attn_implementation": "sdpa"} if torch.cuda.is_available() else {}
 generate_kwargs = {"language": "japanese", "task": "transcribe"}
@@ -75,4 +79,10 @@ end=time.time()
 #print("cnt:",cnt)
 
 print("sec/f:",(end-start)/cnt)
+
+# torch_dtype = torch.float16
 # sec/f: 3.8781877358754477
+
+
+# torch_dtype = torch.float32
+# sec/f: 1.1819143295288086

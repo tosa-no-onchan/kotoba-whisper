@@ -1,5 +1,5 @@
 """
-sample2-bit8_pro.py
+sample2-pro.py
 
 https://hamaruki.com/introduction-to-kotoba-whisper-a-new-option-for-japanese-speech-recognition/
 """
@@ -19,27 +19,43 @@ import numpy as np
 
 import librosa
 
+USE_8BIT=False
+PIPE_USE=False
 
-# モデルの設定
-model_id = "./kotoba-whisper-v1.0-8bit"
-#torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
-torch_dtype=torch.float8_e4m3fn
+if USE_8BIT==True:
+  # モデルの設定
+  model_id = "./kotoba-whisper-v1.0-8bit"
+  #torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+  torch_dtype=torch.float8_e4m3fn
+else:
+  model_id="kotoba-tech/kotoba-whisper-v1.0"
+   
 
 device = "cuda:0" if torch.cuda.is_available() else "cpu"
-model_kwargs = {"attn_implementation": "sdpa"} if torch.cuda.is_available() else {}
+#model_kwargs = {"attn_implementation": "sdpa"} if torch.cuda.is_available() else {}
 generate_kwargs = {"language": "japanese", "task": "transcribe"}
 
 #quantization_config = BitsAndBytesConfig(load_in_8bit=True)
 
-PIPE_USE=False
-
 # load model
-model_8bit = AutoModelForSpeechSeq2Seq.from_pretrained(
-    model_id,
-    #quantization_config=quantization_config,
-    low_cpu_mem_usage=True, 
-    use_safetensors=True
-    )
+if USE_8BIT==True:
+  print("load 8-bit model")
+  model = AutoModelForSpeechSeq2Seq.from_pretrained(
+      model_id,
+      #quantization_config=quantization_config,
+      low_cpu_mem_usage=True, 
+      use_safetensors=True
+      )
+else:
+  print("load 32-bit model")
+  #torch_dtype = torch.float16 if torch.cuda.is_available() else torch.float32
+  torch_dtype = torch.float32
+  model = AutoModelForSpeechSeq2Seq.from_pretrained(
+      model_id, 
+      torch_dtype=torch_dtype, 
+      low_cpu_mem_usage=True, 
+      use_safetensors=True)
+  model.to(device)
 
 #print(model_8bit)
 
@@ -65,10 +81,10 @@ feature_extractor = WhisperFeatureExtractor(
 if PIPE_USE==True:
     # モデルのロード
     pipe = AutomaticSpeechRecognitionPipeline(
-        model=model_8bit,
+        model=model,
         feature_extractor=feature_extractor,
         tokenizer=tokenizer,
-        torch_dtype=torch_dtype,
+        torch_dtype=torch_dtype
     )
 
 """
@@ -93,8 +109,8 @@ else:
 
 #print('pipe.feature_extractor:',pipe.feature_extractor)
 
-TEST1=False
-TEST2=True
+TEST1=True
+TEST2=False
 
 if TEST1==True:
   print('TEST1')
@@ -151,8 +167,8 @@ start=time.time()
 while True:
     if PIPE_USE == True:
         # pipe 推論の実行
-        #result = pipe(sample_mp3, generate_kwargs=generate_kwargs)
-        result = pipe(inputs, generate_kwargs=generate_kwargs)
+        result = pipe(sample_mp3, generate_kwargs=generate_kwargs)
+        #result = pipe(inputs, generate_kwargs=generate_kwargs)
         print(result["text"])
     else:
         if isinstance(sample, np.ndarray):
@@ -169,7 +185,7 @@ while True:
         #print("input_my.dtype:",input_my.dtype)
         # input_my.dtype: torch.float16
 
-        predicted_ids = model_8bit.generate(
+        predicted_ids = model.generate(
             input_my,
             None,
             **generate_kwargs
@@ -178,11 +194,19 @@ while True:
         print(speech)
 
     cnt+=1
-    if cnt >= 1:
+    if cnt >= 5:
         break
 
 end=time.time()
 #print("cnt:",cnt)
 
 print("sec/f:",(end-start)/cnt)
-# sec/f: 4.035113255182902
+
+# 32-bit
+# sec/f: 1.0567609469095867
+
+# 16-bit
+# sec/f: 4.157873630523682
+
+# 8-bit
+# sec/f: 4.352015972137451
