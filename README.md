@@ -19,3 +19,10 @@
 
 ##### 4. Run ONNX quantize  
     $ python onnx-pred_pro.py  
+
+##### 5. Run Original GPU model  
+    $ python kotoba-whisper-v1-sample.py  
+    $ python sample2-pro.py  
+
+##### 6. Run Real Time MIC Input with GPU model  
+    $ python sample2-pro_demo.py  
