@@ -172,9 +172,12 @@ while True:
         print(result["text"])
     else:
         if isinstance(sample, np.ndarray):
-            sample_half = sample.astype(np.float16)
-            #input_my = torch.from_numpy(sample_half).clone()
-            input_my = torch.from_numpy(sample_half).to(device).clone()
+            if torch_dtype == torch.float16:
+              sample_half = sample.astype(np.float16)
+              #input_my = torch.from_numpy(sample_half).clone()
+              input_my = torch.from_numpy(sample_half).to(device).clone()
+            else:
+              input_my = torch.from_numpy(sample).to(device).clone()
         else:
             input_my=sample
 
@@ -203,7 +206,7 @@ end=time.time()
 print("sec/f:",(end-start)/cnt)
 
 # 32-bit
-# sec/f: 1.0567609469095867
+# sec/f: 0.9785617828369141
 
 # 16-bit
 # sec/f: 4.157873630523682
