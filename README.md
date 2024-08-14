@@ -25,4 +25,4 @@
     $ python sample2-pro.py  
 
 ##### 6. Run Real Time MIC Input with GPU model  
-    $ python sample2-pro_demo.py  
+    $ python sample2-pro_mic_my.py  
