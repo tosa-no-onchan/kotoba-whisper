@@ -74,6 +74,8 @@ else:
   encoder="encoder_model-8bit.onnx"
   decoder="decoder_model-8bit.onnx"
 
+USE_FP16=False
+
 # Load encoder model
 encoder_session = onnxruntime.InferenceSession(model_id+'/'+encoder)
 # Load decoder model
@@ -153,7 +155,7 @@ if True:
 
 TEST1=True
 TEST2=False
-SOUND_ON=False
+SOUND_ON=True
 
 sample_mp3="/home/nishi/local/tmp/commonvoice/cv-corpus-11.0-2022-09-21/ja/common_voice_ja_32866812.mp3"
 
@@ -224,7 +226,8 @@ if TEST2==True:
   sample = audio_my.log_mel_spectrogram(audiox,128)   # use mel_128
   # batch axis を入れる
   sample = torch.unsqueeze(sample, 0)
-  
+  if USE_FP16==True:
+    sample = sample.to(torch.float16).to(device)
   print('sample.shape:',sample.shape)
 
 cnt=0
@@ -260,5 +263,10 @@ while True:
 end=time.time()
 print("sec/f:",(end-start)/cnt)
 
-# quantization
+# non quantization  float16   -> NG
+# sec/f: 26.216259002685547
+
+# non quantization  float32
+# sec/f: 12.988801002502441
+# quantization  float32
 #sec/f: 11.72364239692688

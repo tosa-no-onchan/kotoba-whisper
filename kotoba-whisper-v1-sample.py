@@ -62,5 +62,8 @@ end=time.time()
 #print("cnt:",cnt)
 
 print("sec/f:",(end-start)/cnt)
-
+# 16bit
 # sec/f: 7.274289846420288
+# 
+# 32bit
+# sec/f: 1.9648786544799806
