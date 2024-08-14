@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 kotoba-whisper/sample2-pro_mic_my.py
 
