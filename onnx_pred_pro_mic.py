@@ -1,5 +1,5 @@
 """
-onnx_pred_mic.py
+onnx_pred_pro_mic.py
 
 copy from
   https://github.com/davabase/whisper_real_time/blob/master/transcribe_demo.py

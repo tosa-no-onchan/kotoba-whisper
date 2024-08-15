@@ -24,7 +24,6 @@ class MicStream():
         #self.chunk=int(rate/8)
         #self.chunk=int(rate/5)
         self.chunk=int(rate/4)
-        #self.predict_dt = int(10*10)     # predict data length  -> 9 [sec]
         self.level_th=level_th
         self.level_stop_th=level_stop_th
         self.max_sec=max_sec
@@ -33,10 +32,14 @@ class MicStream():
         self.low_len=int(rate*low_sec/self.chunk)
         if self.low_len ==0:
             self.low_len=1
+        self.th_count=int(self.chunk * 0.1)
+        self.stop_count=int(self.chunk * 0.9)
+        #print('self.chunk:',self.chunk)
 
     def callback(self,in_data, frame_count, time_info, status):
         # print(in_data)
         self.chunk_queue.put(in_data)
+        #print(".")
 
         return (in_data, pyaudio.paContinue)
 
@@ -76,9 +79,16 @@ class MicStream():
                     dx = np.frombuffer(input, dtype='int16').astype('float16')
 
                     level_max = dx.max()
-                    #print('level=',level_max)
+                    #print('lev=',level_max)
+                    m_cnt=np.count_nonzero(dx > self.level_th)
+                    #print('m_cnt=',m_cnt)
+
+                    l_cnt=np.count_nonzero(dx < self.level_stop_th)
+                    #print('l_cnt=',l_cnt)
+
                     if s_on==False:
-                        if level_max > self.level_th:
+                        #if level_max > self.level_th:
+                        if m_cnt >= self.th_count:
                             dt.append(input)
                             s_on=True
                             s_chk_cnt=0
@@ -93,7 +103,8 @@ class MicStream():
                             cnt_len=0
                             #s_on=False
                         else:
-                            if level_max < self.level_stop_th:
+                            #if level_max < self.level_stop_th:
+                            if l_cnt >= self.stop_count:
                                 #print('level_low:',level_max)
                                 s_chk_cnt+=1
                                 if s_chk_cnt >= self.low_len:

@@ -13,6 +13,7 @@ import os
 import numpy as np
 #import speech_recognition as sr
 #import speech_recognition_my as sr
+from mic_stream import MicStream
 #import whisper
 import torch
 
@@ -32,15 +33,13 @@ import librosa
 
 from transformers.pipelines.audio_utils import ffmpeg_read
 
-from mic_stream import MicStream
-
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--model", default="medium", help="Model to use",
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--non_english", action='store_true',
                         help="Don't use the english model.")
-    parser.add_argument("--energy_threshold", default=400,
+    parser.add_argument("--energy_threshold", default=2000,
                         help="Energy level for mic to detect.", type=int)
     parser.add_argument("--record_timeout", default=3,
                         help="How real time the recording is in seconds.", type=float)
@@ -133,19 +132,6 @@ def main():
 
     transcription = ['']
 
-    if False:
-        with source:
-            recorder.adjust_for_ambient_noise(source)
-
-        def record_callback(_, audio:sr.AudioData) -> None:
-            """
-            Threaded callback function to receive audio data when recordings finish.
-            audio: An AudioData containing the recorded bytes.
-            """
-            # Grab the raw bytes and push it into the thread safe queue.
-            data = audio.get_raw_data()
-            data_queue.put(data)
-
     # Create a background thread that will pass us raw audio bytes.
     # We could do this manually but SpeechRecognizer provides a nice helper.
     #stopper=recorder.listen_in_background(source, record_callback, phrase_time_limit=record_timeout)
@@ -158,12 +144,9 @@ def main():
                         )
     stopper = mic_stream.start()
 
-
     # Cue the user that we're ready to go.
     #print("Model loaded.\n")
     print("Please speak to mic.\n")
-
-
     fetch=False
 
     while True:
