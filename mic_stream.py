@@ -17,7 +17,7 @@ import sys
 
 
 class MicStream():
-    def __init__(self,data_queue,rate=16000,level_th=600.0,level_stop_th=500.0,max_sec=3,low_sec=2) -> None:
+    def __init__(self,data_queue,rate=16000,level_th=4000.0,level_stop_th=4000.0,max_sec=5,low_sec=2) -> None:
         self.data_queue=data_queue
         self.rate=rate
         #self.chunk=int(rate/10)
