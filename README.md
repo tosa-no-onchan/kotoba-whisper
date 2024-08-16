@@ -17,7 +17,7 @@
 ##### 3. ONNX quantization  
     $ python onnx2qauntize.py  
 
-##### 4. Run ONNX quantize  
+##### 4. Run ONNX predict without pipelines  
     $ python onnx-pred_pro.py  
 
 ##### 5. Run Original GPU model  
@@ -26,3 +26,7 @@
 
 ##### 6. Run Real Time MIC Input with GPU model  
     $ python sample2-pro_mic_my.py  
+
+##### 7. Run Real Time MIC Input ONNX  
+    $ python onnx_pred_pro_mic_my.py  
+    
