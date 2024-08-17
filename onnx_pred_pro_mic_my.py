@@ -37,11 +37,11 @@ def main():
                         choices=["tiny", "base", "small", "medium", "large"])
     parser.add_argument("--non_english", action='store_true',
                         help="Don't use the english model.")
-    parser.add_argument("--energy_threshold", default=4000,
+    parser.add_argument("--energy_threshold", default=3800,
                         help="Energy level for mic to detect.", type=int)
-    parser.add_argument("--record_timeout", default=5,
+    parser.add_argument("--record_timeout", default=3,
                         help="How real time the recording is in seconds.", type=float)
-    parser.add_argument("--phrase_timeout", default=2,
+    parser.add_argument("--phrase_timeout", default=1.5,
                         help="How much empty space between recordings before we "
                              "consider it a new line in the transcription.", type=float)
     if 'linux' in platform:

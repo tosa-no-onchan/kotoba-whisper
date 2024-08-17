@@ -125,6 +125,8 @@ class MicStream():
             running[0] = False
             if wait_for_stop:
                 listener_thread.join()  # block until the background thread is done, which can take around 1 second
+            if self.stream.is_active():
+                self.stream.close()
 
         listener_thread = threading.Thread(target=threaded_listen)
         listener_thread.daemon = True
