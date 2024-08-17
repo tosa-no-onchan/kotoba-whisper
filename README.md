@@ -29,4 +29,30 @@
 
 ##### 7. Run Real Time MIC Input ONNX  
     $ python onnx_pred_pro_mic_my.py  
+
+##### 8. MIC Input Stream Class.  
+mic_stream.py  
+``````
+   # using for class  
+    from mic_stream import MicStream  
+    from queue import Queue  
+    data_queue = Queue()
+
+    mic_stream=MicStream(data_queue,level_th=3500.0,level_stop_th=3500.0,max_sec=3,low_sec=1.5)
+    stopper = mic_stream.start()
+
+    while True:
+        try:
+            if not data_queue.empty():
+                #audio_data = b''.join(data_queue.queue)
+                #data_queue.queue.clear()
+
+                print('get queue')
+                audio_data = data_queue.get()
+
+        except KeyboardInterrupt:
+            stopper()
+            break
+
+``````    
     
