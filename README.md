@@ -44,10 +44,7 @@ mic_stream.py
     while True:
         try:
             if not data_queue.empty():
-                #audio_data = b''.join(data_queue.queue)
-                #data_queue.queue.clear()
-
-                print('get queue')
+                #print('get queue')
                 audio_data = data_queue.get()
 
         except KeyboardInterrupt:
